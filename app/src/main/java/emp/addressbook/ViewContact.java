@@ -54,10 +54,8 @@ public class ViewContact extends AppCompatActivity {
         @Override
         protected Cursor doInBackground(Long... params) {
             databaseConnector.open();
-
-            // get a cursor containing all data on given entry
             return databaseConnector.getOneContact(params[0]);
-        } // end method doInBackground
+        }
 
         // use the Cursor returned from the doInBackground method
         @Override
@@ -151,7 +149,7 @@ public class ViewContact extends AppCompatActivity {
                 }; // end new AsyncTask
 
                 // execute the AsyncTask to delete contact at rowID
-                deleteTask.execute(new Long[]{rowID});
+                deleteTask.execute(rowID);
             } // end method onClick
         } // end anonymous inner class
         ); // end call to method setPositiveButton

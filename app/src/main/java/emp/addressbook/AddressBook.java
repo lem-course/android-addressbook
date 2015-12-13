@@ -49,9 +49,7 @@ public class AddressBook extends AppCompatActivity {
         String[] from = new String[]{"name"};
         int[] to = new int[]{R.id.contactTextView};
 
-        contactAdapter = new SimpleCursorAdapter(AddressBook.this, R.layout.contact_list_item,
-                null, from, to, 0);
-
+        contactAdapter = new SimpleCursorAdapter(this, R.layout.contact_list_item, null, from, to, 0);
 
         contactListView.setAdapter(contactAdapter); // set contactView's adapter
     } // end method onCreate
@@ -78,18 +76,16 @@ public class AddressBook extends AppCompatActivity {
         @Override
         protected Cursor doInBackground(Object... params) {
             databaseConnector.open();
-
-            // get a cursor containing call contacts
             return databaseConnector.getAllContacts();
-        } // end method doInBackground
+        }
 
         // use the Cursor returned from the doInBackground method
         @Override
         protected void onPostExecute(Cursor result) {
-            contactAdapter.changeCursor(result); // set the adapter's Cursor
+            contactAdapter.changeCursor(result);
             databaseConnector.close();
-        } // end method onPostExecute
-    } // end class GetContactsTask
+        }
+    }
 
     // create the Activity's menu from a menu resource XML file
     @Override
@@ -104,7 +100,7 @@ public class AddressBook extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // create a new Intent to launch the AddEditContact Activity
-        Intent addNewContact = new Intent(AddressBook.this, AddEditContact.class);
+        final Intent addNewContact = new Intent(AddressBook.this, AddEditContact.class);
         startActivity(addNewContact); // start the AddEditContact Activity
         return super.onOptionsItemSelected(item); // call super's method
     } // end method onOptionsItemSelected

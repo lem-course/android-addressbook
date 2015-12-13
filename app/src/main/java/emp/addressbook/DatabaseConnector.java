@@ -1,5 +1,3 @@
-// DatabaseConnector.java
-// Provides easy connection and creation of UserContacts database.
 package emp.addressbook;
 
 import android.content.ContentValues;
@@ -11,101 +9,152 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 
 public class DatabaseConnector {
-	// database name
-	private static final String DATABASE_NAME = "UserContacts";
-	private static final int DATABASE_VERSION = 2;
-	private SQLiteDatabase database; // database object
-	private DatabaseOpenHelper databaseOpenHelper; // database helper
+    private static final String DATABASE_NAME = "UserContacts";
+    private static final int DATABASE_VERSION = 1;
 
-	// public constructor for DatabaseConnector
-	public DatabaseConnector(Context context) {
-		// create a new DatabaseOpenHelper
-		databaseOpenHelper = new DatabaseOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION);
-	} // end DatabaseConnector constructor
+    // database object
+    private SQLiteDatabase database;
 
-	// open the database connection
-	public void open() throws SQLException {
-		// create or open a database for reading/writing
-		database = databaseOpenHelper.getWritableDatabase();
-	} // end method open
+    // database helper
+    private DatabaseOpenHelper databaseOpenHelper;
 
-	// close the database connection
-	public void close() {
-		if (database != null)
-			database.close(); // close the database connection
-	} // end method close
+    public DatabaseConnector(Context context) {
+        databaseOpenHelper = new DatabaseOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
 
-	// inserts a new contact in the database
-	public void insertContact(String name, String email, String phone, String state, String city) {
-		ContentValues newContact = new ContentValues();
-		newContact.put("name", name);
-		newContact.put("email", email);
-		newContact.put("phone", phone);
-		newContact.put("street", state);
-		newContact.put("city", city);
+    /**
+     * Opens the database connection
+     *
+     * @throws SQLException
+     */
+    public void open() throws SQLException {
+        database = databaseOpenHelper.getWritableDatabase();
+    }
 
-		open(); // open the database
-		database.insert("contacts", null, newContact);
-		close(); // close the database
-	} // end method insertContact
+    /**
+     * Closes the database connection
+     */
+    public void close() {
+        if (database != null) database.close(); // close the database connection
+    }
 
-	// inserts a new contact in the database
-	public void updateContact(long id, String name, String email, String phone, String state,
-			String city) {
-		ContentValues editContact = new ContentValues();
-		editContact.put("name", name);
-		editContact.put("email", email);
-		editContact.put("phone", phone);
-		editContact.put("street", state);
-		editContact.put("city", city);
+    /**
+     * Adds a new contact to the database
+     *
+     * @param name
+     * @param email
+     * @param phone
+     * @param state
+     * @param city
+     */
+    public void insertContact(String name, String email, String phone, String state, String city) {
+        final ContentValues newContact = new ContentValues();
+        newContact.put("name", name);
+        newContact.put("email", email);
+        newContact.put("phone", phone);
+        newContact.put("street", state);
+        newContact.put("city", city);
 
-		open(); // open the database
-		database.update("contacts", editContact, "_id=" + id, null);
-		close(); // close the database
-	} // end method updateContact
+        open();
+        database.insert("contacts", null, newContact);
+        close();
+    }
 
-	// return a Cursor with all contact information in the database
-	public Cursor getAllContacts() {
-		return database.query("contacts", new String[]{"_id", "name"}, null, null, null, null,
-				"name");
-	} // end method getAllContacts
+    /**
+     * Updates given contact in the database using provided values
+     *
+     * @param id
+     * @param name
+     * @param email
+     * @param phone
+     * @param state
+     * @param city
+     */
+    public void updateContact(long id, String name, String email, String phone, String state,
+                              String city) {
+        final ContentValues editContact = new ContentValues();
+        editContact.put("name", name);
+        editContact.put("email", email);
+        editContact.put("phone", phone);
+        editContact.put("street", state);
+        editContact.put("city", city);
 
-	// get a Cursor containing all information about the contact specified
-	// by the given id
-	public Cursor getOneContact(long id) {
-		return database.query("contacts", null, "_id=" + id, null, null, null, null);
-	} // end method getOnContact
+        open();
+        database.update("contacts", editContact, "_id=" + id, null);
+        close();
+    }
 
-	// delete the contact specified by the given String name
-	public void deleteContact(long id) {
-		open(); // open the database
-		database.delete("contacts", "_id=" + id, null);
-		close(); // close the database
-	} // end method deleteContact
+    /**
+     * Returns a Cursor with all contact information in the database
+     * <p/>
+     * The database connection object has to be open before calling
+     * this method and closed afterwards.
+     *
+     * @return
+     */
+    public Cursor getAllContacts() {
+        return database.query("contacts", new String[]{"_id", "name"},
+                null, null, null, null, "name");
+    }
 
-	private class DatabaseOpenHelper extends SQLiteOpenHelper {
-		// public constructor
-		public DatabaseOpenHelper(Context context, String name, CursorFactory factory, int version) {
-			super(context, name, factory, version);
-		} // end DatabaseOpenHelper constructor
+    /**
+     * Returns a Cursor containing all information about the contact specified by the given id
+     * <p/>
+     * The database connection object has to be open before calling
+     * this method and closed afterwards.
+     *
+     * @param id Contact's id
+     * @return
+     */
+    public Cursor getOneContact(long id) {
+        return database.query("contacts", null, "_id=" + id, null, null, null, null);
+    }
 
-		// creates the contacts table when the database is created
-		@Override
-		public void onCreate(SQLiteDatabase db) {
-			// query to create a new table named contacts
-			String createQuery = "CREATE TABLE contacts"
-					+ "(_id integer primary key autoincrement,"
-					+ "name TEXT, email TEXT, phone TEXT," + "street TEXT, city TEXT);";
-			// initializing the database
-			String insertValues = "INSERT INTO contacts (_ID, name, email, phone, street, city) values (NULL, 'MOJCA', 'mojca@gmail.com', '041-444-555', 'Trzaska cesta 25', 'Ljubljana');";
+    /**
+     * Deletes the contact specified by the given id
+     * <p/>
+     * The database connection object has to be open before calling
+     * this method and closed afterwards.
+     *
+     * @param id Contact's id
+     */
+    public void deleteContact(long id) {
+        open();
+        database.delete("contacts", "_id=" + id, null);
+        close();
+    }
 
-			db.execSQL(createQuery); // execute the query
-			db.execSQL(insertValues);
-		} // end method onCreate
+    private class DatabaseOpenHelper extends SQLiteOpenHelper {
+        public DatabaseOpenHelper(Context context, String name, CursorFactory factory, int version) {
+            super(context, name, factory, version);
+        }
 
-		@Override
-		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		} // end method onUpgrade
+        /**
+         * Creates the contacts table when the database is created
+         *
+         * @param db
+         */
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            final String createQuery = "CREATE TABLE contacts" +
+                    "(_id integer primary key autoincrement, " +
+                    "name TEXT, " +
+                    "email TEXT, " +
+                    "phone TEXT," +
+                    "street TEXT, " +
+                    "city TEXT);";
 
-	} // end class DatabaseOpenHelper
-} // end class DatabaseConnector
+            final String insertValues = "INSERT INTO contacts " +
+                    "(_ID, name, email, phone, street, city) values " +
+                    "(NULL, 'Mojca', 'mojca@gmail.com', '041-444-555', 'Vecna pot 113', 'Ljubljana');";
+
+            db.execSQL(createQuery);
+            db.execSQL(insertValues);
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            // Executed each time the DB version is changed
+        }
+    }
+}
